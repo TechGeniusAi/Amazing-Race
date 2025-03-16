@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner Success</title>
+    <title>Scanner Error</title>
     <style>
         * {
             margin: 0;
@@ -13,71 +13,76 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0a1a12;
+            background-color: #0a0a1a;
             color: #ffffff;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             overflow: hidden;
+            perspective: 1000px;
+            
         }
-
-        .background {
-            position: fixed;
+        #starsCanvas {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, #143a28 0%, #0a1a12 100%);
-            z-index: -1;
+            z-index: -1; /* Keeps it behind other content */
         }
 
-        .floating-shapes {
-            position: fixed;
+        .parallax-container {
+            height: 100vh;
+            perspective: 10px;
+        }
+
+        .parallax-section {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+
+        .parallax-bg {
+            position: absolute;
             width: 100%;
             height: 100%;
-            z-index: 0;
-        }
-
-        .shape {
-            position: absolute;
-            background: rgba(120, 255, 180, 0.1);
-            border-radius: 50%;
-            filter: blur(5px);
+            background: radial-gradient(circle, #1a1a40 0%, #0a0a1a 100%);
+            transform: translateZ(-10px) scale(2);
         }
 
         .scanner-container {
             position: relative;
             z-index: 10;
             text-align: center;
-            padding: 2.5rem;
-            background: rgba(20, 50, 40, 0.8);
+            padding: 2rem;
+            background: rgba(30, 30, 60, 0.7);
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            box-shadow: 0 0 40px rgba(92, 255, 180, 0.6);
-            max-width: 650px;
+            box-shadow: 0 0 30px rgba(92, 92, 255, 0.5);
+            transform: translateZ(0);
+            max-width: 600px;
             width: 90%;
-            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transition: all 0.5s ease;
         }
 
         .scanner-container:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 0 60px rgba(92, 255, 180, 0.9);
+            transform: translateY(-10px);
+            box-shadow: 0 0 50px rgba(92, 92, 255, 0.8);
         }
 
-        .success-message {
-            font-size: 2.5rem;
+        .message {
+            font-size: 2rem;
             margin-bottom: 1.5rem;
-            color: #4dff9e;
-            text-shadow: 0 0 15px rgba(77, 255, 158, 0.7);
+            color: #ff5252;
+            text-shadow: 0 0 10px rgba(255, 82, 82, 0.7);
             opacity: 0;
             transform: translateY(20px);
             animation: fadeIn 0.8s ease forwards;
         }
 
         .sub-message {
-            font-size: 1.3rem;
-            color: #aaffdd;
+            font-size: 1.2rem;
+            color: #aaaaff;
             margin-bottom: 2rem;
             opacity: 0;
             transform: translateY(20px);
@@ -93,13 +98,12 @@
 
         .scanner {
             width: 100%;
-            height: 220px;
-            background: linear-gradient(to right, #103828, #1a6b50);
-            border-radius: 15px;
+            height: 200px;
+            background: linear-gradient(to right, #1a1a3a, #3333cc);
+            border-radius: 10px;
             position: relative;
             overflow: hidden;
             margin-bottom: 2rem;
-            box-shadow: inset 0 0 20px rgba(77, 255, 158, 0.3);
         }
 
         .scanner::before {
@@ -111,9 +115,9 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(77, 255, 158, 0.6), 
+                rgba(255, 255, 255, 0.4), 
                 transparent);
-            animation: scannerEffect 2s linear infinite;
+            animation: scannerEffect 3s linear infinite;
         }
 
         @keyframes scannerEffect {
@@ -126,10 +130,10 @@
         }
 
         .scanner-icon {
-            font-size: 5.5rem;
+            font-size: 5rem;
             margin: 2rem 0;
-            color: #4dff9e;
-            animation: pulse 3s ease infinite;
+            color: #aaaaff;
+            animation: pulse 2s ease infinite;
         }
 
         @keyframes pulse {
@@ -138,8 +142,8 @@
                 opacity: 1;
             }
             50% {
-                transform: scale(1.2);
-                opacity: 0.8;
+                transform: scale(1.1);
+                opacity: 0.7;
             }
             100% {
                 transform: scale(1);
@@ -147,236 +151,280 @@
             }
         }
 
-        .success-code {
-            font-family: 'Courier New', monospace;
-            color: #aaffdd;
+        .try-again-btn {
+            background: linear-gradient(135deg, #4a4aff, #2323aa);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 74, 255, 0.4);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s ease forwards 0.6s;
+        }
+
+        .try-again-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(74, 74, 255, 0.6);
+            background: linear-gradient(135deg, #5a5aff, #3333cc);
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .error-code {
+            font-family: monospace;
+            color: #aaaaff;
             margin-top: 1.5rem;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
+            font-size: 1rem;
             opacity: 0;
             transform: translateY(20px);
             animation: fadeIn 0.8s ease forwards 0.9s;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #103828;
-            border-radius: 3px;
-            margin-top: 20px;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.8s ease forwards 1.2s;
-        }
-
-        .progress-bar .fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #4dff9e, #1a6b50);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-
         /* Responsive design */
         @media (max-width: 768px) {
-            .success-message {
-                font-size: 1.8rem;
+            .message {
+                font-size: 1.5rem;
             }
             .sub-message {
                 font-size: 1rem;
             }
             .scanner {
-                height: 180px;
+                height: 150px;
             }
-            .scanner-icon {
-                font-size: 4rem;
-            }
-        }
-
-        /* Audio visualizer */
-        .audio-visualizer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            padding: 0 20px;
-            gap: 5px;
-        }
-
-        .audio-bar {
-            width: 5px;
-            background-color: rgba(77, 255, 158, 0.5);
-            border-radius: 5px;
-            transition: height 0.2s ease;
-        }
-
-        /* Confetti effect */
-        .confetti {
-            position: absolute;
-            z-index: 1;
-            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <div class="background"></div>
-    <div class="floating-shapes" id="floatingShapes"></div>
     
-    <div class="scanner-container">
-        <h1 class="success-message" id="successMessage">Scan Successful!</h1>
-        <p class="sub-message" id="subMessage">Congratulations! Your scanner is working better than most government services.</p>
-        
-        <div class="scanner" id="scanner">
-            <div class="scanner-icon">✓</div>
-            <div class="audio-visualizer" id="audioVisualizer"></div>
-        </div>
-        
-        <div class="progress-bar">
-            <div class="fill" id="progressFill"></div>
-        </div>
-        
-        <div class="success-code" id="successCode">Success Code: SCAN-200-PERFECT</div>
+
+    <div class="parallax-container">
+        <section class="parallax-section">
+            <div class="parallax-bg"></div>
+            <canvas id="starsCanvas"></canvas>
+            <div class="particles" id="particles"></div>
+            
+            <div class="scanner-container">
+                <h1 class="message" id="message">Invalid Scanner Detected</h1>
+                <p class="sub-message" id="sub-message">Scanner is currently meditating. Please respect its zen time.</p>
+                
+                <div class="scanner">
+                    <div class="scanner-icon">🔍</div>
+                </div>
+                
+                <div class="error-code" id="errorCode">Error Code: SCANNER-MOOD-SWING😒😩</div>
+            </div>
+        </section>
     </div>
 
     <script>
+        const canvas = document.getElementById('starsCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars = [];
+    const meteorites = [];
+    const moon = { x: canvas.width - 150, y: 100, radius: 70 };
+
+    function createStars(count) {
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.5,
+                opacity: Math.random(),
+            });
+        }
+    }
+
+    function createMeteorites(count) {
+        for (let i = 0; i < count; i++) {
+            meteorites.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.5,
+                dx: Math.random() * 2 + 2,
+                dy: Math.random() * 2 + 2,
+                length: Math.random() * 80 + 20,
+            });
+        }
+    }
+
+    function drawStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach((star) => {
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+            ctx.fill();
+            star.opacity += Math.random() * 0.05 - 0.025; // Twinkling effect
+            star.opacity = Math.max(Math.min(star.opacity, 1), 0);
+        });
+    }
+
+    function drawMoon() {
+        ctx.beginPath();
+        ctx.arc(moon.x, moon.y, moon.radius, 0, Math.PI * 2);
+        const gradient = ctx.createRadialGradient(
+            moon.x, moon.y, moon.radius * 0.7,
+            moon.x, moon.y, moon.radius
+        );
+        gradient.addColorStop(0, "rgba(255, 255, 200, 1)");
+        gradient.addColorStop(1, "rgba(255, 255, 255, 0.8)");
+        ctx.fillStyle = gradient;
+        ctx.fill();
+    }
+
+    function drawMeteorites() {
+        meteorites.forEach((meteor, index) => {
+            ctx.beginPath();
+            ctx.moveTo(meteor.x, meteor.y);
+            ctx.lineTo(meteor.x - meteor.dx * meteor.length, meteor.y - meteor.dy * meteor.length);
+            ctx.strokeStyle = "rgba(255, 200, 100, 0.8)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            meteor.x += meteor.dx;
+            meteor.y += meteor.dy;
+
+            if (meteor.x > canvas.width || meteor.y > canvas.height) {
+                meteorites.splice(index, 1); // Remove meteorite if out of bounds
+            }
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStars();
+        drawMoon();
+        drawMeteorites();
+
+        if (meteorites.length < 3) {
+            createMeteorites(1); // Add new meteorites occasionally
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars.length = 0;
+        meteorites.length = 0;
+        createStars(100);
+    });
+
+    createStars(200);
+    createMeteorites(2);
+    animate();
+
         // Messages array with humorous alternatives
         const messages = [
-            "Scan Successful!",
+            "This Scanner is Having an Existential Crisis",
         ];
 
         const subMessages = [
-            "Congratulations! Your scanner is working better than most government services.",
+            "Please try another one... if you can find one that works!",
         ];
 
-        const successCodes = [
-            "Success Code: SCANNER-EMPLOYEE-OF-THE-MONTH",
+        const errorCodes = [
+            "Error Code: SCAN-404-NOTFOUND",
         ];
 
-        // DOM Elements
-        let successMessageElement = document.getElementById('successMessage');
-        let subMessageElement = document.getElementById('subMessage');
-        let successCodeElement = document.getElementById('successCode');
-        const progressFill = document.getElementById('progressFill');
-        const floatingShapes = document.getElementById('floatingShapes');
-        const audioVisualizer = document.getElementById('audioVisualizer');
+        // Function to update messages
+        function updateMessages() {
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            
+            document.getElementById('message').innerText = messages[randomIndex];
+            document.getElementById('sub-message').innerText = subMessages[randomIndex];
+            document.getElementById('errorCode').innerText = errorCodes[randomIndex];
+            
+            // Reset animations
+            const elementsToAnimate = [
+                document.getElementById('message'),
+                document.getElementById('sub-message'),
+                document.getElementById('tryAgainBtn'),
+                document.getElementById('errorCode')
+            ];
+            
+            elementsToAnimate.forEach(element => {
+                element.style.animation = 'none';
+                element.offsetHeight; // Trigger reflow
+                element.style.animation = '';
+            });
+        }
 
-        // Create floating shapes
-        function createFloatingShapes() {
-            for (let i = 0; i < 20; i++) {
-                const shape = document.createElement('div');
-                shape.classList.add('shape');
-                
-                // Random size
-                const size = Math.random() * 100 + 50;
-                shape.style.width = `${size}px`;
-                shape.style.height = `${size}px`;
+        // Event listener for try again button
+        document.getElementById('tryAgainBtn').addEventListener('click', updateMessages);
+
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.backgroundColor = 'rgba(170, 170, 255, ' + (Math.random() * 0.5) + ')';
+                particle.style.borderRadius = '50%';
                 
                 // Random position
-                shape.style.left = `${Math.random() * 100}%`;
-                shape.style.top = `${Math.random() * 100}%`;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
                 
-                // Random opacity
-                shape.style.opacity = Math.random() * 0.3;
+                // Random animation
+                const duration = Math.random() * 20 + 10;
+                particle.style.animation = `float ${duration}s ease-in-out infinite`;
                 
-                // Animation
-                const duration = Math.random() * 10 + 10;
-                const xMovement = (Math.random() - 0.5) * 20;
-                const yMovement = (Math.random() - 0.5) * 20;
-                
-                shape.style.animation = `floatSlow ${duration}s infinite alternate ease-in-out`;
-                shape.style.animationDelay = `${Math.random() * 5}s`;
-                
+                // Add keyframes for float animation
                 const keyframes = `
-                    @keyframes floatSlow {
-                        0% { transform: translate(0, 0); }
-                        100% { transform: translate(${xMovement}px, ${yMovement}px); }
+                    @keyframes float {
+                        0%, 100% {
+                            transform: translate(0, 0);
+                        }
+                        25% {
+                            transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px);
+                        }
+                        50% {
+                            transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px);
+                        }
+                        75% {
+                            transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px);
+                        }
                     }
                 `;
                 
                 const style = document.createElement('style');
-                style.textContent = keyframes;
+                style.appendChild(document.createTextNode(keyframes));
                 document.head.appendChild(style);
                 
-                floatingShapes.appendChild(shape);
+                particlesContainer.appendChild(particle);
             }
         }
 
-        // Create audio visualizer
-        function createAudioVisualizer() {
-            for (let i = 0; i < 20; i++) {
-                const bar = document.createElement('div');
-                bar.classList.add('audio-bar');
-                audioVisualizer.appendChild(bar);
-            }
-        }
+        // Initialize particles
+        createParticles();
 
-        // Animate audio visualizer
-        function animateAudioVisualizer() {
-            const bars = document.querySelectorAll('.audio-bar');
-            
-            setInterval(() => {
-                bars.forEach((bar) => {
-                    const height = Math.random() * 30 + 5;
-                    bar.style.height = `${height}px`;
-                });
-            }, 200);
-        }
+        // Parallax effect on scroll
+        const parallaxBg = document.querySelector('.parallax-bg');
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.pageYOffset;
+            parallaxBg.style.transform = `translateZ(-10px) scale(2) translateY(${scrollPosition * 0.1}px)`;
+        });
 
-        // Create confetti effect
-        function createConfetti() {
-            const colors = ['#4dff9e', '#aaffdd', '#1a6b50', '#ffffff'];
-            
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                
-                const size = Math.random() * 10 + 5;
-                confetti.style.width = `${size}px`;
-                confetti.style.height = `${size}px`;
-                
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.position = 'absolute';
-                confetti.style.top = '0';
-                confetti.style.left = `${Math.random() * 100}%`;
-                
-                document.body.appendChild(confetti);
-                
-                // Random animation
-                const animationDuration = Math.random() * 2 + 2;
-                const xMovement = (Math.random() - 0.5) * 200;
-                
-                confetti.animate([
-                    { transform: 'translate(0, 0)', opacity: 1 },
-                    { transform: `translate(${xMovement}px, 100vh)`, opacity: 0 }
-                ], {
-                    duration: animationDuration * 1000,
-                    easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)'
-                });
-                
-                // Remove after animation
-                setTimeout(() => {
-                    document.body.removeChild(confetti);
-                }, animationDuration * 1000);
-            }
-        }
-
-        // Initialize
-        createFloatingShapes();
-        createAudioVisualizer();
-        animateAudioVisualizer();
-        
-        // Initial progress animation
-        setTimeout(() => {
-            progressFill.style.width = '100%';
-        }, 500);
-        
-        // Initial confetti
-        setTimeout(createConfetti, 1000);
+        // Random message on load
+        updateMessages();
     </script>
 </body>
 </html>
