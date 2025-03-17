@@ -11,11 +11,15 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Prevents scrolling */
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0a0a1a;
             color: #ffffff;
-            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -197,14 +201,19 @@
             <div class="scanner-icon">🔍</div>
         </div>
         
-        <div class="error-code" id="errorCode">Error Code: SCANNER-MOOD-SWING😒😩</div>
+        <div class="error-code" id="errorCode">Error Code: SCANNER-MOOD-SWING 😒😩</div>
     </div>
 
     <script>
         const canvas = document.getElementById('starsCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        
+        // Set canvas to window dimensions
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
 
         const stars = [];
         const meteorites = [];
@@ -234,7 +243,6 @@
         }
 
         function drawStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             stars.forEach((star) => {
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
@@ -290,11 +298,12 @@
         }
 
         window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            resizeCanvas();
+            // Update moon position
+            moon.x = canvas.width - 150;
+            // Reset stars for new dimensions
             stars.length = 0;
-            meteorites.length = 0;
-            createStars(100);
+            createStars(200);
         });
 
         createStars(200);
@@ -304,17 +313,20 @@
         // Messages array with humorous alternatives
         const messages = [
             "This Scanner is Having an Existential Crisis",
-            "Invalid Scanner Detected"
+            "Invalid Scanner Detected",
+            "Scanner Says No"
         ];
 
         const subMessages = [
             "Please try another one... if you can find one that works!",
-            "Scanner is currently meditating. Please respect its zen time."
+            "Scanner is currently meditating. Please respect its zen time.",
+            "The scanner is on strike. Union negotiations pending."
         ];
 
         const errorCodes = [
             "Error Code: SCAN-404-NOTFOUND",
-            "Error Code: SCANNER-MOOD-SWING😒😩"
+            "Error Code: SCANNER-MOOD-SWING😒😩",
+            "Error Code: SCAN-UNION-DISPUTE"
         ];
 
         // Function to update messages
